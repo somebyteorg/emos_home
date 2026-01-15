@@ -5,7 +5,7 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
     "name": "emos-home",
-    "compatibility_date": "2026-01-11",
+    "compatibility_date": "2026-01-14",
     "main": "server/main.ts",
     "assets": {
         "not_found_handling": "single-page-application",
