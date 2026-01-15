@@ -1,0 +1,339 @@
+<template>
+  <div class="home p-40 max-sm:p-4 max-sm:mt-20 min-xl:w-5xl mx-auto">
+    <n-card>
+      <template #header>
+        <p @click="showUserBase">{{ data.user_roles_string || '欢迎' }}</p>
+      </template>
+      <template #header-extra>
+        <n-button
+          text
+          @click="
+            () => {
+              router.push({
+                name: ROUTE_NAME_INDEX,
+              })
+            }
+          "
+        >
+          回主页
+        </n-button>
+      </template>
+      <n-list>
+        <template #header>
+          <p>欢迎来到 emos，本服完全免费，欢迎体验。</p>
+          <p>感谢 Zn存档服、yzhazha、jack_cco、Love_benghuai3、ForAllDreams、miaojun 等大力支持。</p>
+        </template>
+        <template #footer>
+          <n-skeleton v-if="loading" text :repeat="3" />
+          <div v-else>
+            <template v-if="data.is_viewing">
+              <p>
+                地址:
+                <code @click="copyEmyaUrl">{{ data.emya_url }}</code>
+              </p>
+              <p>
+                端口:
+                <code>443</code>
+              </p>
+              <p>
+                账号: <code>{{ data.username }}</code>
+              </p>
+              <p>
+                密码:
+                <template v-if="data.must_otp">
+                  <n-button quaternary size="small" type="info" @click="emyaGetLoginPassword" :loading="emya_login_password_loading"> 点击获取 </n-button>
+                </template>
+                <template v-else>
+                  <n-popconfirm negative-text="不要" positive-text="要" @positiveClick="emyaResetPassword()">
+                    <template #trigger>
+                      {{ data.emya_password }}
+                    </template>
+                    换一个新的固定密码
+                  </n-popconfirm>
+                </template>
+              </p>
+            </template>
+            <template v-else>
+              愿您可以根据
+              <n-button text tag="a" href="https://zh.wikipedia.org/zh-hans/%E5%85%AD%E5%BA%A6%E5%88%86%E9%9A%94%E7%90%86%E8%AE%BA" target="_blank"> 六度空间理论，</n-button>
+              找到可以
+              <n-button text tag="a" :href="data.telegram_group_url" target="_blank">发邀的伙伴，</n-button>
+              让他带您
+              <n-button text @click="showUserBase"> 一起玩耍。</n-button>
+            </template>
+          </div>
+        </template>
+      </n-list>
+      <template #footer>
+        <n-list>
+          <n-list-item v-if="data.telegram_bind_url">
+            <n-thing title="Telegram" description="建议绑上这个江湖人称纸飞机的家伙">
+              <template #header-extra>
+                <n-button type="primary" quaternary size="small" tag="a" :href="data.telegram_bind_url"> 点击绑定 </n-button>
+              </template>
+            </n-thing>
+          </n-list-item>
+          <template v-if="data.is_viewing">
+            <n-list-item>
+              <n-thing title="是否显示空媒体资源" description="可以当个海报墙看呀">
+                <template #header-extra> <n-switch v-model:value="data.is_show_empty" :loading="show_empty_loading" @change="changeShowEmpty" /></template>
+              </n-thing>
+            </n-list-item>
+            <n-list-item v-if="!data.is_can_upload">
+              <n-thing title="上传权限" description="阅读上传须知后自会获得">
+                <template #header-extra>
+                  <n-button type="warning" quaternary size="small" @click="showUploadAgreement"> 点击阅读 </n-button>
+                </template>
+              </n-thing>
+            </n-list-item>
+            <n-list-item v-if="data.invite_remaining">
+              <n-thing title="邀请伙伴">
+                <template #description>
+                  <p>发邀须谨慎，连坐泪两行。</p>
+                  <p>
+                    <template v-if="data.roles.includes('admin')"> 尊敬的管理员，您可以无限发邀。</template>
+                    <template v-else>可邀 {{ data.invite_remaining }} 人。</template>
+                  </p>
+                </template>
+                <template #header-extra>
+                  <n-button type="error" quaternary size="small" @click="showInvite"> 点击邀请 </n-button>
+                </template>
+              </n-thing>
+            </n-list-item>
+          </template>
+        </n-list>
+      </template>
+    </n-card>
+  </div>
+</template>
+<script setup lang="tsx">
+  import { useClipboard } from '@vueuse/core'
+  import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import instance from '@/utils/ky'
+  import signStore from '@/stores/sign.ts'
+  import { nDialog, nMessage, nModel } from '@/utils/naive'
+  import { ROUTE_NAME_INDEX } from '@/router'
+
+  const storeSign = signStore(),
+    router = useRouter()
+
+  const USER_ROLES = {
+    admin: '管理员',
+    dev: '开发者',
+    special: '特邀用户',
+    sponsor: '赞助者',
+    peer: '同行',
+  }
+
+  const loading = ref(true),
+    data = ref({}),
+    getData = async () => {
+      loading.value = true
+
+      let res = await instance.get('/api/user').json()
+
+      let user_roles_string = []
+
+      for (let role of res.roles) {
+        let user_role_string = USER_ROLES[role]
+        if (user_role_string) {
+          user_roles_string.push(user_role_string)
+        }
+      }
+
+      data.value = {
+        ...res,
+        user_roles_string: user_roles_string.join('、'),
+      }
+
+      loading.value = false
+    }
+
+  getData()
+
+  const showUserBase = () => {
+      if (loading.value) {
+        return
+      }
+      let user_id = data.value.user_id
+      let { copy } = useClipboard()
+      nDialog().success({
+        title: `用户ID: ${user_id}`,
+        content: () => (
+          <p>
+            当前密钥: <code>{storeSign.user_token}</code>
+          </p>
+        ),
+        showIcon: false,
+        negativeButtonProps: {
+          type: 'error',
+        },
+        negativeText: '重置密钥',
+        positiveText: '点击复制用户ID',
+        onPositiveClick: () => {
+          copy(user_id)
+          nMessage().success('复制成功')
+        },
+        onNegativeClick: () => {
+          instance.put('/api/user/resetToken').then(async (res) => {
+            let { token } = await res.json()
+            storeSign.tokenSet(token)
+            nMessage().success('重置成功')
+          })
+        },
+      })
+    },
+    copyEmyaUrl = () => {
+      let { copy } = useClipboard()
+      copy(data.value.emya_url)
+      nMessage().success('复制成功')
+    }
+
+  const emya_login_password_loading = ref(false),
+    emyaGetLoginPassword = () => {
+      emya_login_password_loading.value = true
+      instance
+        .get('/api/emya/getLoginPassword')
+        .then(async (res) => {
+          let { password, second } = await res.json()
+          if (password) {
+            let { copy } = useClipboard()
+            nDialog().success({
+              title: `一次性登录密码为: ${password}, ${second}秒内有效`,
+              showIcon: false,
+              positiveText: '点击复制',
+              onPositiveClick: () => {
+                copy(password)
+                nMessage().success('复制成功')
+              },
+            })
+          } else {
+            nMessage().success('您可以直接使用当前账号密码进行登录')
+          }
+        })
+        .finally(() => {
+          emya_login_password_loading.value = false
+        })
+    },
+    emyaResetPassword = () => {
+      let password = Math.random().toFixed(6).slice(-6)
+      instance
+        .put('/api/emya/resetPassword', {
+          json: {
+            password,
+          },
+        })
+        .then(() => {
+          nMessage().success(`新的固定登录密码为 ${password}`)
+          data.value.emya_password = password
+          let { copy } = useClipboard()
+          copy(password)
+        })
+    }
+
+  const show_empty_loading = ref(false),
+    changeShowEmpty = (value) => {
+      show_empty_loading.value = true
+      instance
+        .put('/api/user/showEmpty')
+        .then(async (res) => {
+          let { is_show_empty } = await res.json()
+          data.value.is_show_empty = is_show_empty
+        })
+        .finally(() => {
+          show_empty_loading.value = false
+        })
+    }
+
+  const showUploadAgreement = () => {
+    nDialog().success({
+      style: {
+        width: '450px',
+      },
+      title: `在上传之前，请审视您的文件：`,
+      content: () => (
+        <div>
+          <p>
+            若它承载着光明与欢笑，无惧在阳光下共赏，请归档于
+            <n-button text tag="a" href="https://wiki.emos.best" target="_blank">
+              &nbsp;emos；
+            </n-button>
+          </p>
+          <p>
+            若它涌动着本能与躁动，只属于深夜的独白，请封印于
+            <n-button text tag="a" href="https://empn.mom" target="_blank">
+              &nbsp;empn。
+            </n-button>
+          </p>
+          <p>秩序与混乱，仅在一念之间。</p>
+        </div>
+      ),
+      showIcon: false,
+      negativeText: '我再想想',
+      positiveText: '认可并同意',
+      onPositiveClick: () => {
+        instance.put('/api/user/agreeUploadAgreement').then(() => {
+          data.value.is_can_upload = true
+        })
+      },
+    })
+  }
+
+  const showInvite = () => {
+    let invite_user_id = ref(null),
+      invite_loading = ref(false)
+    let model = nModel().create({
+      maskClosable: false,
+      title: `邀请伙伴`,
+      preset: 'card',
+      style: {
+        width: '80%',
+        maxWidth: '400px',
+      },
+      content: () => <n-input v-model:value={invite_user_id.value} type="text" placeholder="请输入对方用户ID" maxlength="10" />,
+      footer: () => (
+        <n-button
+          tertiary
+          class="float-right"
+          type="primary"
+          loading={invite_loading.value}
+          onClick={() => {
+            let value = invite_user_id.value
+            console.log(value)
+            if (!value) {
+              nMessage().error(`用户ID 不可为空`)
+              return
+            }
+
+            if (value.length < 8) {
+              nMessage().error(`用户ID 输入错误`)
+              return
+            }
+
+            invite_loading.value = true
+            instance
+              .post('/api/user/invite', {
+                json: {
+                  invite_user_id: value,
+                },
+              })
+              .then(async (res) => {
+                nMessage().success(`邀请成功`)
+                let { invite_remaining } = await res.json()
+                data.value.invite_remaining = invite_remaining
+                model.destroy()
+              })
+              .finally(() => {
+                invite_loading.value = false
+              })
+          }}
+        >
+          邀请
+        </n-button>
+      ),
+    })
+    console.log(33)
+  }
+</script>
+<style scoped lang="stylus"></style>
