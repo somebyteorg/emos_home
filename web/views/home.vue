@@ -96,12 +96,23 @@
                   </p>
                 </template>
                 <template #header-extra>
-                  <n-button type="error" quaternary size="small" @click="showInvite"> 点击邀请 </n-button>
+                  <n-button type="error" quaternary size="small" @click="inviteShow"> 点击邀请 </n-button>
                 </template>
               </n-thing>
             </n-list-item>
           </template>
         </n-list>
+      </template>
+      <template #action>
+        <div class="flex justify-between">
+          <n-tooltip trigger="hover" v-if="invite_info.invite_at">
+            <template #trigger> 邀请人: {{ invite_info.parent.username }} </template>
+            邀请时间: {{ invite_info.invite_at }}
+          </n-tooltip>
+          <p v-if="invite_info.invite_count">
+            <n-button text @click="inviteHistory"> 已邀请: {{ invite_info.invite_count }} 人 </n-button>
+          </p>
+        </div>
       </template>
     </n-card>
   </div>
@@ -114,6 +125,7 @@
   import signStore from '@/stores/sign.ts'
   import { nDialog, nMessage, nModel } from '@/utils/naive'
   import { ROUTE_NAME_INDEX } from '@/router'
+  import { dayjs } from '@common/dayjs'
 
   const storeSign = signStore(),
     router = useRouter()
@@ -134,7 +146,6 @@
       let res = await instance.get('/api/user').json()
 
       let user_roles_string = []
-
       for (let role of res.roles) {
         let user_role_string = USER_ROLES[role]
         if (user_role_string) {
@@ -148,6 +159,8 @@
       }
 
       loading.value = false
+
+      inviteGetInfo()
     }
 
   getData()
@@ -280,60 +293,116 @@
     })
   }
 
-  const showInvite = () => {
-    let invite_user_id = ref(null),
-      invite_loading = ref(false)
-    let model = nModel().create({
-      maskClosable: false,
-      title: `邀请伙伴`,
-      preset: 'card',
-      style: {
-        width: '80%',
-        maxWidth: '400px',
-      },
-      content: () => <n-input v-model:value={invite_user_id.value} type="text" placeholder="请输入对方用户ID" maxlength="10" />,
-      footer: () => (
-        <n-button
-          tertiary
-          class="float-right"
-          type="primary"
-          loading={invite_loading.value}
-          onClick={() => {
-            let value = invite_user_id.value
-            console.log(value)
-            if (!value) {
-              nMessage().error(`用户ID 不可为空`)
-              return
-            }
+  const invite_info = ref({}),
+    inviteShow = () => {
+      let invite_user_id = ref(null),
+        invite_loading = ref(false)
+      let model = nModel().create({
+        maskClosable: false,
+        title: `邀请伙伴`,
+        preset: 'card',
+        style: {
+          width: '80%',
+          maxWidth: '400px',
+        },
+        content: () => <n-input v-model:value={invite_user_id.value} type="text" placeholder="请输入对方用户ID" maxlength="10" />,
+        footer: () => (
+          <n-button
+            tertiary
+            class="float-right"
+            type="primary"
+            loading={invite_loading.value}
+            onClick={() => {
+              let value = invite_user_id.value
+              if (!value) {
+                nMessage().error(`用户ID 不可为空`)
+                return
+              }
 
-            if (value.length < 8) {
-              nMessage().error(`用户ID 输入错误`)
-              return
-            }
+              if (value.length != 10) {
+                nMessage().error(`用户ID 输入错误`)
+                return
+              }
 
-            invite_loading.value = true
-            instance
-              .post('/api/user/invite', {
-                json: {
-                  invite_user_id: value,
-                },
-              })
-              .then(async (res) => {
-                nMessage().success(`邀请成功`)
-                let { invite_remaining } = await res.json()
-                data.value.invite_remaining = invite_remaining
-                model.destroy()
-              })
-              .finally(() => {
-                invite_loading.value = false
-              })
-          }}
-        >
-          邀请
-        </n-button>
-      ),
-    })
-    console.log(33)
-  }
+              invite_loading.value = true
+              instance
+                .post('/api/invite', {
+                  json: {
+                    invite_user_id: value,
+                  },
+                })
+                .then(async (res) => {
+                  nMessage().success(`邀请成功`)
+                  let { invite_remaining } = await res.json()
+                  data.value.invite_remaining = invite_remaining
+                  model.destroy()
+                })
+                .finally(() => {
+                  invite_loading.value = false
+                })
+            }}
+          >
+            邀请
+          </n-button>
+        ),
+      })
+    },
+    inviteGetInfo = () => {
+      instance.get('/api/invite/info').then(async (res) => {
+        invite_info.value = await res.json()
+      })
+    },
+    inviteHistory = () => {
+      let history_columns = [
+          {
+            title: '邀请时间',
+            key: 'invite_at',
+            width: 120,
+            render: (row) => dayjs(row.invite_at).format('MM-DD HH:mm'),
+          },
+          {
+            title: 'ID',
+            key: 'user_id',
+            width: 120,
+          },
+          {
+            title: '用户名',
+            key: 'username',
+            minWidth: 150,
+          },
+        ],
+        history_data = ref([]),
+        history_loading = ref(false),
+        historyGet = () => {
+          history_loading.value = true
+          instance
+            .get('/api/invite/history', {
+              searchParams: {
+                page: 1,
+                page_size: 100,
+              },
+            })
+            .then(async (res) => {
+              let data = await res.json()
+              history_data.value = data.items
+            })
+            .finally(() => {
+              history_loading.value = false
+            })
+        }
+
+      historyGet()
+
+      nModel().create({
+        maskClosable: false,
+        title: `最近邀请的100人`,
+        preset: 'card',
+        style: {
+          width: '80%',
+          maxWidth: '600px',
+        },
+        content: () => <n-data-table columns={history_columns} data={history_data.value} max-height="300px" loading={history_loading.value} />,
+      })
+    }
 </script>
 <style scoped lang="stylus"></style>
