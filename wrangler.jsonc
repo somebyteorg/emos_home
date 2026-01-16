@@ -48,10 +48,6 @@
             "zone_name": "emos.best"
         },
         {
-            "pattern": "emos.best/assets/*",
-            "zone_name": "emos.best"
-        },
-        {
             "pattern": "emos.best/server/*",
             "zone_name": "emos.best"
         },
