@@ -39,14 +39,17 @@
                 账号: <code>{{ data.username }}</code>
               </p>
               <p>
-                密码:
+                <n-tooltip trigger="hover">
+                  <template #trigger> 密码: </template>
+                  安全期间 均为临时密码
+                </n-tooltip>
                 <template v-if="data.must_otp">
                   <n-button quaternary size="small" type="info" @click="emyaGetLoginPassword" :loading="emya_login_password_loading"> 点击获取 </n-button>
                 </template>
                 <template v-else>
                   <n-popconfirm negative-text="不要" positive-text="要" @positiveClick="emyaResetPassword()">
                     <template #trigger>
-                      {{ data.emya_password }}
+                      {{ data.emya_password || '点击设置密码' }}
                     </template>
                     换一个新的固定密码
                   </n-popconfirm>
