@@ -338,6 +338,7 @@
                   nMessage().success(`邀请成功`)
                   let { invite_remaining } = await res.json()
                   data.value.invite_remaining = invite_remaining
+                  invite_info.value.invite_count += 1
                   model.destroy()
                 })
                 .finally(() => {
