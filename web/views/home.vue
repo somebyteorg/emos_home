@@ -5,18 +5,34 @@
         <p @click="showUserBase">{{ data.user_roles_string || '欢迎' }}</p>
       </template>
       <template #header-extra>
-        <n-button
-          text
-          @click="
-            () => {
-              router.push({
-                name: ROUTE_NAME_INDEX,
-              })
-            }
-          "
-        >
-          回主页
-        </n-button>
+        <div class="flex">
+          <n-button
+            type="warning"
+            text
+            @click="
+              () => {
+                nMessage().success('退出成功')
+                storeSign.signOut()
+              }
+            "
+          >
+            退出登录
+          </n-button>
+          <n-button
+            style="margin-left: 10px"
+            type="primary"
+            text
+            @click="
+              () => {
+                router.push({
+                  name: ROUTE_NAME_INDEX,
+                })
+              }
+            "
+          >
+            回主页
+          </n-button>
+        </div>
       </template>
       <n-list>
         <template #header>
