@@ -109,7 +109,7 @@
       <template #action>
         <div class="flex justify-between">
           <n-tooltip trigger="hover" v-if="invite_info.invite_at">
-            <template #trigger> 邀请人: {{ invite_info.parent.username }} </template>
+            <template #trigger> 邀请人: {{ invite_info.parent.pseudonym || 'emos' }} </template>
             邀请时间: {{ invite_info.invite_at }}
           </n-tooltip>
           <p v-if="invite_info.invite_count">
