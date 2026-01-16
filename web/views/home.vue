@@ -383,7 +383,7 @@
           {
             title: 'ID',
             key: 'user_id',
-            width: 120,
+            width: 130,
           },
           {
             title: '用户名',
