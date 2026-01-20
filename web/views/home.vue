@@ -67,7 +67,7 @@
                     <template #trigger>
                       {{ data.emya_password || '点击设置密码' }}
                     </template>
-                    换一个新的固定密码
+                    设一个新的固定密码
                   </n-popconfirm>
                 </template>
               </p>
@@ -249,19 +249,53 @@
         })
     },
     emyaResetPassword = () => {
-      let password = Math.random().toFixed(6).slice(-6)
-      instance
-        .put('/api/emya/resetPassword', {
-          json: {
-            password,
-          },
-        })
-        .then(() => {
-          nMessage().success(`新的固定登录密码为 ${password}`)
-          data.value.emya_password = password
-          let { copy } = useClipboard()
-          copy(password)
-        })
+      let new_password = ref(Math.random().toFixed(6).slice(-6)),
+        password_loading = ref(false)
+      let model = nModel().create({
+        maskClosable: false,
+        title: `请输入新的固定登录密码`,
+        preset: 'card',
+        style: {
+          width: '80%',
+          maxWidth: '400px',
+        },
+        content: () => <n-input v-model:value={new_password.value} type="text" placeholder="请输入新的固定登录密码" maxlength="30" clearable />,
+        footer: () => (
+          <n-button
+            tertiary
+            class="float-right"
+            type="primary"
+            loading={password_loading.value}
+            onClick={() => {
+              let password = new_password.value
+              if (!password) {
+                nMessage().error(`新登录密码 不可为空`)
+                return
+              }
+
+              password_loading.value = true
+              instance
+                .put('/api/emya/resetPassword', {
+                  json: {
+                    password,
+                  },
+                })
+                .then(() => {
+                  nMessage().success(`新的固定登录密码为 ${password}`)
+                  data.value.emya_password = password
+                  let { copy } = useClipboard()
+                  copy(password)
+                  model.destroy()
+                })
+                .finally(() => {
+                  password_loading.value = false
+                })
+            }}
+          >
+            提交
+          </n-button>
+        ),
+      })
     }
 
   const show_empty_loading = ref(false),
