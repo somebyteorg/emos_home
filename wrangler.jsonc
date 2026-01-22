@@ -48,6 +48,10 @@
             "zone_name": "emos.best"
         },
         {
+            "pattern": "emos.best/migration",
+            "zone_name": "emos.best"
+        },
+        {
             "pattern": "emos.best/server/*",
             "zone_name": "emos.best"
         },
