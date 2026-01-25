@@ -38,6 +38,11 @@
         <template #header>
           <p>欢迎来到 emos，本服完全免费，欢迎体验。</p>
           <p>感谢 Zn存档服、yzhazha、jack_cco、Love_benghuai3、ForAllDreams、miaojun 等大力支持。</p>
+          <div class="flex" v-if="data.is_viewing">
+            <p v-if="data.carrot > 500">
+              可用 <n-button text @click="carrotTransfer"> {{ data.carrot }}</n-button> 萝卜
+            </p>
+          </div>
         </template>
         <template #footer>
           <n-skeleton v-if="loading" text :repeat="3" />
@@ -459,5 +464,79 @@
         content: () => <n-data-table columns={history_columns} data={history_data.value} max-height="300px" loading={history_loading.value} />,
       })
     }
+
+  const carrotTransfer = () => {
+    let transfer_user_id = ref(null),
+      transfer_carrot = ref(),
+      transfer_loading = ref(false)
+    let model = nModel().create({
+      maskClosable: false,
+      title: `萝卜转增`,
+      preset: 'card',
+      style: {
+        width: '80%',
+        maxWidth: '400px',
+      },
+      content: () => (
+        <div>
+          <n-input v-model:value={transfer_user_id.value} type="text" placeholder="请输入对方用户ID" maxlength="10" clearable />
+          <n-input-number
+            class="mt-3"
+            v-model:value={transfer_carrot.value}
+            placeholder="请输入要转给对方的数量"
+            precision={0}
+            min={2}
+            max={Math.min(data.value.carrot, 6000)}
+            show-button={false}
+            clearable
+          >
+            {{
+              suffix: () => '🥕',
+            }}
+          </n-input-number>
+        </div>
+      ),
+      footer: () => (
+        <div class="flex justify-between">
+          <p>{transfer_carrot.value ? <p>对方将收到 {Math.floor(transfer_carrot.value * 0.8)} </p> : <p>系统将扣除20%手续费</p>}</p>
+          <n-button
+            tertiary
+            type="primary"
+            loading={transfer_loading.value}
+            onClick={() => {
+              if (!transfer_user_id.value) {
+                nMessage().error(`接收用户ID 不可为空`)
+                return
+              }
+              if (!transfer_carrot.value) {
+                nMessage().error(`萝卜数量不对`)
+                return
+              }
+
+              transfer_loading.value = true
+              instance
+                .put('/api/carrot/transfer', {
+                  json: {
+                    user_id: transfer_user_id.value,
+                    carrot: transfer_carrot.value,
+                  },
+                })
+                .then(async (res) => {
+                  let { carrot } = await res.json()
+                  data.value.carrot = carrot
+                  nMessage().success(`转赠成功`)
+                  model.destroy()
+                })
+                .finally(() => {
+                  transfer_loading.value = false
+                })
+            }}
+          >
+            转增
+          </n-button>
+        </div>
+      ),
+    })
+  }
 </script>
 <style scoped lang="stylus"></style>
