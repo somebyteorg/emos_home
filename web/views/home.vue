@@ -18,6 +18,9 @@
           >
             退出登录
           </n-button>
+          <n-button v-if="!data.watch_slot_remaining && data.carrot > 1000" style="margin-left: 10px" type="info" text :loading="watch_exchange_slot_loading" @click="watchExchangeSlot">
+            兑换卡槽
+          </n-button>
           <n-button
             style="margin-left: 10px"
             type="primary"
@@ -542,5 +545,20 @@
       ),
     })
   }
+
+  const watch_exchange_slot_loading = ref(false),
+    watchExchangeSlot = () => {
+      watch_exchange_slot_loading.value = true
+      instance
+        .post('/api/watch/slot')
+        .then(async (res) => {
+          let { watch_slot_remaining } = await res.json()
+          data.value.watch_slot_remaining = watch_slot_remaining
+          nMessage().success(`兑换成功`)
+        })
+        .finally(() => {
+          watch_exchange_slot_loading.value = false
+        })
+    }
 </script>
 <style scoped lang="stylus"></style>
