@@ -333,6 +333,7 @@
             </n-button>
           </p>
           <p>秩序与混乱，仅在一念之间。</p>
+          <p style="color: red">因储存问题，目前视频资源上传后存在丢失风险。</p>
         </div>
       ),
       showIcon: false,
