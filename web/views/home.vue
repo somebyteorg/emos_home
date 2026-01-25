@@ -42,6 +42,9 @@
             <p v-if="data.carrot > 500">
               可用 <n-button text @click="carrotTransfer"> {{ data.carrot }}</n-button> 萝卜
             </p>
+            <p class="ml-2" v-if="data.size_upload">
+              上传了 <code>{{ prettyBytes(data.size_upload) }}</code>
+            </p>
           </div>
         </template>
         <template #footer>
@@ -145,6 +148,7 @@
   import { useClipboard } from '@vueuse/core'
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
+  import prettyBytes from 'pretty-bytes'
   import instance from '@/utils/ky'
   import signStore from '@/stores/sign.ts'
   import { nDialog, nMessage, nModel } from '@/utils/naive'
