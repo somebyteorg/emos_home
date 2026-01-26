@@ -478,7 +478,7 @@
       transfer_loading = ref(false)
     let model = nModel().create({
       maskClosable: false,
-      title: `萝卜转增`,
+      title: `萝卜转赠`,
       preset: 'card',
       style: {
         width: '80%',
@@ -539,7 +539,7 @@
                 })
             }}
           >
-            转增
+            转赠
           </n-button>
         </div>
       ),
