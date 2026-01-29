@@ -54,6 +54,7 @@
           <n-skeleton v-if="loading" text :repeat="3" />
           <div v-else>
             <template v-if="data.is_viewing">
+              <p style="color: red">禁止拖拉测速以及会触发多次请求的软件使用</p>
               <p>
                 地址:
                 <code @click="copyEmyaUrl">{{ data.emya_url }}</code>
