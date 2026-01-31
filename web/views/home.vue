@@ -40,7 +40,7 @@
       <n-list>
         <template #header>
           <p>欢迎来到 emos，本服完全免费，欢迎体验。</p>
-          <p>感谢 Zn存档服、yzhazha、jack_cco、Love_benghuai3、ForAllDreams、miaojun 等大力支持。</p>
+          <p>感谢 Zn存档服、yzhazha、jack_cco、Herissmon、ForAllDreams、miaojun 等大力支持。</p>
           <div class="flex" v-if="data.is_viewing">
             <p v-if="data.carrot > 200">
               可用 <n-button text @click="carrotTransfer"> {{ data.carrot }}</n-button> 萝卜
