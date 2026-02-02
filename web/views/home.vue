@@ -110,6 +110,11 @@
                 <template #header-extra> <n-switch v-model:value="data.is_show_empty" :loading="show_empty_loading" @change="changeShowEmpty" /></template>
               </n-thing>
             </n-list-item>
+            <n-list-item v-if="data.roles.length || data.carrot > 1000">
+              <n-thing title="是否开启超清原画" description="原来海报还可以这么清晰">
+                <template #header-extra> <n-switch v-model:value="data.is_original_image" :loading="original_image_loading" @change="changeOriginalImage" /></template>
+              </n-thing>
+            </n-list-item>
             <n-list-item v-if="!data.is_can_upload">
               <n-thing title="上传权限" description="阅读上传须知后自会获得">
                 <template #header-extra>
@@ -322,6 +327,20 @@
         })
         .finally(() => {
           show_empty_loading.value = false
+        })
+    }
+
+  const original_image_loading = ref(false),
+    changeOriginalImage = (value) => {
+      original_image_loading.value = true
+      instance
+        .put('/api/user/originalImage')
+        .then(async (res) => {
+          let { is_original_image } = await res.json()
+          data.value.is_original_image = is_original_image
+        })
+        .finally(() => {
+          original_image_loading.value = false
         })
     }
 
