@@ -41,14 +41,16 @@
         <template #header>
           <p>欢迎来到 emos，本服完全免费，欢迎体验。</p>
           <p>感谢 Zn存档服、yzhazha、jack_cco、Herissmon、ForAllDreams、miaojun 等大力支持。</p>
-          <div class="flex" v-if="data.is_viewing">
-            <p v-if="data.carrot > 200">
-              可用 <n-button text @click="carrotTransfer"> {{ data.carrot }}</n-button> 萝卜
-            </p>
-            <p class="ml-2" v-if="data.size_upload">
-              上传了 <code>{{ prettyBytes(data.size_upload) }}</code>
-            </p>
-            <div class="ml-2 flex">
+          <div v-if="data.is_viewing">
+            <div class="flex">
+              <p v-if="data.carrot > 200">
+                可用 <n-button text @click="carrotTransfer"> {{ data.carrot }}</n-button> 萝卜
+              </p>
+              <p class="ml-2" v-if="data.size_upload">
+                上传了 <code>{{ prettyBytes(data.size_upload) }}</code>
+              </p>
+            </div>
+            <div class="flex">
               {{ data.is_can_down ? '已经' : '暂未' }}
               获得
               <p @dblclick="showDownAgreement">下载</p>
