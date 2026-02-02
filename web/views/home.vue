@@ -48,6 +48,12 @@
             <p class="ml-2" v-if="data.size_upload">
               上传了 <code>{{ prettyBytes(data.size_upload) }}</code>
             </p>
+            <div class="ml-2 flex">
+              {{ data.is_can_down ? '已经' : '暂未' }}
+              获得
+              <p @dblclick="showDownAgreement">下载</p>
+              权限
+            </div>
           </div>
         </template>
         <template #footer>
@@ -376,6 +382,15 @@
           data.value.is_can_upload = true
         })
       },
+    })
+  }
+
+  const showDownAgreement = () => {
+    if (data.value.is_can_down) {
+      return
+    }
+    instance.put('/api/user/agreeDownAgreement').then(() => {
+      data.value.is_can_down = true
     })
   }
 
