@@ -219,9 +219,45 @@
       nDialog().success({
         title: `用户ID: ${user_id}`,
         content: () => (
-          <p>
-            当前密钥: <code>{storeSign.user_token}</code>
-          </p>
+          <div>
+            <p>
+              当前密钥: <code>{storeSign.user_token}</code>
+            </p>
+            {data.value.telegram_bind_url ? (
+              ''
+            ) : (
+              <p>
+                已绑定TG:
+                <n-popconfirm
+                  show-icon={false}
+                  negative-text="确认解绑"
+                  negative-button-props={{
+                    type: 'warning',
+                  }}
+                  positive-text="先留着"
+                  on-negative-click={() => {
+                    instance.delete('/api/user/telegram').then(async (res) => {
+                      nMessage().success('解绑成功')
+                      let { telegram_bind_url } = await res.json()
+                      data.value.telegram_bind_url = telegram_bind_url
+                    })
+                  }}
+                >
+                  {{
+                    trigger: () => <code>{data.value.telegram_user_id}</code>,
+                    default: () => (
+                      <p>
+                        将解绑此
+                        <n-button text tag="a" href={`tg://user?id=${data.value.telegram_user_id}`} target="_blank">
+                          TG
+                        </n-button>
+                      </p>
+                    ),
+                  }}
+                </n-popconfirm>
+              </p>
+            )}
+          </div>
         ),
         showIcon: false,
         negativeButtonProps: {
