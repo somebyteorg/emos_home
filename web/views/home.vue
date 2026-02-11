@@ -63,10 +63,14 @@
           <div v-else>
             <template v-if="data.is_viewing">
               <p style="color: red">禁止拖拉测速以及会触发多次请求的软件使用</p>
-              <p>
-                地址:
-                <code @click="copyEmyaUrl">{{ data.emya_url }}</code>
-              </p>
+              <div class="flex">
+                <p class="font-mono">emos服地址:</p>
+                <code @click="copyEmyaUrl(data.emya_url)">{{ data.emya_url }}</code>
+              </div>
+              <div class="flex" v-if="data.emya_live_url">
+                <p class="font-mono">live服地址:</p>
+                <code @click="copyEmyaUrl(data.emya_live_url)">{{ data.emya_live_url }}</code>
+              </div>
               <p>
                 端口:
                 <code>443</code>
@@ -183,6 +187,8 @@
     peer: '同行',
   }
 
+  const { copy } = useClipboard()
+
   const loading = ref(true),
     data = ref({}),
     getData = async () => {
@@ -215,7 +221,6 @@
         return
       }
       let user_id = data.value.user_id
-      let { copy } = useClipboard()
       nDialog().success({
         title: `用户ID: ${user_id}`,
         content: () => (
@@ -278,9 +283,8 @@
         },
       })
     },
-    copyEmyaUrl = () => {
-      let { copy } = useClipboard()
-      copy(data.value.emya_url)
+    copyEmyaUrl = (value) => {
+      copy(value)
       nMessage().success('复制成功')
     }
 
@@ -292,7 +296,6 @@
         .then(async (res) => {
           let { password, second } = await res.json()
           if (password) {
-            let { copy } = useClipboard()
             nDialog().success({
               title: `一次性登录密码为: ${password}, ${second}秒内有效`,
               showIcon: false,
@@ -345,7 +348,6 @@
                 .then(() => {
                   nMessage().success(`新的固定登录密码为 ${password}`)
                   data.value.emya_password = password
-                  let { copy } = useClipboard()
                   copy(password)
                   model.destroy()
                 })
