@@ -44,10 +44,10 @@
           <div v-if="data.is_viewing">
             <div class="flex">
               <p v-if="data.carrot > 200">
-                可用 <n-button text @click="carrotTransfer"> {{ data.carrot }}</n-button> 萝卜
+                可用 <n-button text @click="carrotTransfer"> {{ is_show ? data.carrot : '***' }}</n-button> 萝卜
               </p>
               <p class="ml-2" v-if="data.size_upload">
-                上传了 <code>{{ prettyBytes(data.size_upload) }}</code>
+                上传了 <code>{{ is_show ? prettyBytes(data.size_upload) : '***' }}</code>
               </p>
             </div>
             <div class="flex">
@@ -62,12 +62,20 @@
           <n-skeleton v-if="loading" text :repeat="3" />
           <div v-else>
             <template v-if="data.is_viewing">
-              <p style="color: red">禁止拖拉测速以及会触发多次请求的软件使用</p>
+              <div class="flex justify-between">
+                <p style="color: red">禁止拖拉测速以及会触发多次请求的软件使用</p>
+                <n-button text @click="toggleShow()">
+                  <n-icon :size="20">
+                    <Eye20Regular v-if="is_show" />
+                    <EyeOff20Regular v-else />
+                  </n-icon>
+                </n-button>
+              </div>
               <div class="flex">
                 <p class="font-mono">emos服地址:</p>
                 <code @click="copyEmyaUrl(data.emya_url)">{{ data.emya_url }}</code>
               </div>
-              <div class="flex" v-if="data.emya_live_url">
+              <div class="flex" v-if="is_show && data.emya_live_url">
                 <p class="font-mono">live服地址:</p>
                 <code @click="copyEmyaUrl(data.emya_live_url)">{{ data.emya_live_url }}</code>
               </div>
@@ -76,7 +84,7 @@
                 <code>443</code>
               </p>
               <p>
-                账号: <code>{{ data.username }}</code>
+                账号: <code>{{ is_show ? data.username : '***' }}</code>
               </p>
               <p>
                 <n-tooltip trigger="hover">
@@ -89,7 +97,10 @@
                 <template v-else>
                   <n-popconfirm negative-text="不要" positive-text="要" @positiveClick="emyaResetPassword()">
                     <template #trigger>
-                      {{ data.emya_password || '点击设置密码' }}
+                      <template v-if="data.emya_password">
+                        {{ is_show ? data.emya_password : '***' }}
+                      </template>
+                      <template v-else>点击设置密码</template>
                     </template>
                     设一个新的固定密码
                   </n-popconfirm>
@@ -134,7 +145,7 @@
                 </template>
               </n-thing>
             </n-list-item>
-            <n-list-item v-if="data.invite_remaining">
+            <n-list-item v-if="data.invite_remaining && is_show">
               <n-thing title="邀请伙伴">
                 <template #description>
                   <p>发邀须谨慎，连坐泪两行。</p>
@@ -152,7 +163,7 @@
         </n-list>
       </template>
       <template #action>
-        <div class="flex justify-between">
+        <div class="flex justify-between" v-show="is_show">
           <n-tooltip trigger="hover" v-if="invite_info.invite_at">
             <template #trigger> 邀请人: {{ invite_info.parent.pseudonym || invite_info.parent.user_id }} </template>
             邀请时间: {{ invite_info.invite_at }}
@@ -166,7 +177,7 @@
   </div>
 </template>
 <script setup lang="tsx">
-  import { useClipboard } from '@vueuse/core'
+  import { useClipboard, useToggle } from '@vueuse/core'
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
   import prettyBytes from 'pretty-bytes'
@@ -175,6 +186,7 @@
   import { nDialog, nMessage, nModel } from '@/utils/naive'
   import { ROUTE_NAME_INDEX } from '@/router'
   import { dayjs } from '@common/dayjs'
+  import { Eye20Regular, EyeOff20Regular } from '@vicons/fluent'
 
   const storeSign = signStore(),
     router = useRouter()
@@ -188,6 +200,8 @@
   }
 
   const { copy } = useClipboard()
+
+  const [is_show, toggleShow] = useToggle(false)
 
   const loading = ref(true),
     data = ref({}),
