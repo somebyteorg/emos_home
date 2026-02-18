@@ -197,6 +197,7 @@
     special: '特邀用户',
     sponsor: '赞助者',
     peer: '同行',
+    review: '审核者',
   }
 
   const { copy } = useClipboard()
