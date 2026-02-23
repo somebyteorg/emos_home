@@ -145,7 +145,7 @@
                 </template>
               </n-thing>
             </n-list-item>
-            <n-list-item v-if="data.invite_remaining && is_show">
+            <n-list-item v-if="data.invite_remaining">
               <n-thing title="邀请伙伴">
                 <template #description>
                   <p>发邀须谨慎，连坐泪两行。</p>
@@ -163,7 +163,7 @@
         </n-list>
       </template>
       <template #action>
-        <div class="flex justify-between" v-show="is_show">
+        <div class="flex justify-between">
           <n-tooltip trigger="hover" v-if="invite_info.invite_at">
             <template #trigger> 邀请人: {{ invite_info.parent.pseudonym || invite_info.parent.user_id }} </template>
             邀请时间: {{ invite_info.invite_at }}
