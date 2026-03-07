@@ -583,7 +583,7 @@
             placeholder="请输入要转给对方的数量"
             precision={0}
             min={2}
-            max={Math.min(data.value.carrot, 6000)}
+            max={Math.min(data.value.carrot, 125000)}
             show-button={false}
             clearable
           >
