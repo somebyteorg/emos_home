@@ -79,11 +79,12 @@
             no,
           },
         })
-        .then(() => {
+        .then(async (res) => {
           nMessage().success('支付成功')
           data.value.pay_status = 'success'
           if (return_url) {
-            to_url.value = `${return_url}?no=${no}`
+            let row = await res.json()
+            to_url.value = `${return_url}?no=${no}&param=${row.param}`
             setTimeout(() => {
               window.location.href = to_url.value
             }, 1000)
