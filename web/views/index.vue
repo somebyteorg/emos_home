@@ -5,7 +5,12 @@
       background,
     }"
   >
-    <div class="main absolute top-0 left-0 right-0 z-10 pt-60 px-4 md:px-6 text-center md:text-left md:ml-40 lg:ml-64">
+    <div
+      class="main absolute top-0 left-0 right-0 z-10 pt-60 px-4 md:px-6 text-center md:text-left md:ml-40 lg:ml-64"
+      :style="{
+        transform: IsAprilFoolsDay ? 'scaleX(-1)' : 'none',
+      }"
+    >
       <span class="inline-block px-3 py-1 rounded-full text-sm mb-4">
         欢迎来到 基于
         <n-button text tag="a" href="https://github.com/emosp/emya" target="_blank" type="primary">emya</n-button>
@@ -47,7 +52,7 @@
 </template>
 <script setup lang="tsx">
   import { ref } from 'vue'
-  import { dayjs } from '@common/dayjs'
+  import { dayjs, IsAprilFoolsDay } from '@common/dayjs'
 
   import signStore from '@/stores/sign.ts'
   const storeSign = signStore()

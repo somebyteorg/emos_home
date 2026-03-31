@@ -12,6 +12,8 @@ dayjs.tz.setDefault('Asia/Shanghai')
 
 export const GetTimestamp = () => dayjs().unix()
 
+export const IsAprilFoolsDay = dayjs().format('MM-DD') === '04-01'
+
 export const GetFormatDate = (template = 'YYYY-MM-DD HH:mm:ss') => dayjs().tz().format(template)
 
 export {
