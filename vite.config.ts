@@ -36,7 +36,7 @@ export default defineConfig(() => {
       alias: {
         '@': fileURLToPath(new URL('./web', import.meta.url)),
         '@common': fileURLToPath(new URL('./common', import.meta.url)),
-        '@server': fileURLToPath(new URL('./server', import.meta.url)),
+        '@worker': fileURLToPath(new URL('./worker', import.meta.url)),
       },
     },
     server: {

@@ -18,9 +18,7 @@
           >
             退出登录
           </n-button>
-          <n-button v-if="!data.watch_slot_remaining && data.carrot > 1000" style="margin-left: 10px" type="info" text :loading="watch_exchange_slot_loading" @click="watchExchangeSlot">
-            兑换卡槽
-          </n-button>
+          <n-button v-if="!data.slot_remaining && data.carrot > 1000" style="margin-left: 10px" type="info" text :loading="watch_exchange_slot_loading" @click="watchExchangeSlot"> 兑换卡槽 </n-button>
           <n-button
             style="margin-left: 10px"
             type="primary"
@@ -71,15 +69,19 @@
                   </n-icon>
                 </n-button>
               </div>
-              <div class="flex">
-                <p class="font-mono">emos服地址:</p>
-                <code @click="copyEmyaUrl(data.emya_url)">{{ data.emya_url }}</code>
+              <div class="flex" v-show="is_show && data.server_video">
+                <p class="font-mono">影视服地址:</p>
+                <code @click="copyEmyaUrl(data.server_video)">{{ data.server_video }}</code>
               </div>
-              <div class="flex" v-if="is_show && data.emya_live_url">
-                <p class="font-mono">live服地址:</p>
-                <code @click="copyEmyaUrl(data.emya_live_url)">{{ data.emya_live_url }}</code>
+              <div class="flex" v-show="is_show && data.server_live">
+                <p class="font-mono">直播服地址:</p>
+                <code @click="copyEmyaUrl(data.server_live)">{{ data.server_live }}</code>
               </div>
-              <p>
+              <div class="flex" v-show="is_show && data.server_music">
+                <p class="font-mono">音乐服地址:</p>
+                <code @click="copyEmyaUrl(data.server_music)">{{ data.server_music }}</code>
+              </div>
+              <p v-show="is_show">
                 端口:
                 <code>443</code>
               </p>
@@ -307,7 +309,7 @@
     emyaGetLoginPassword = () => {
       emya_login_password_loading.value = true
       instance
-        .get('/api/emya/getLoginPassword')
+        .get('/api/user/passwordTemporary')
         .then(async (res) => {
           let { password, second } = await res.json()
           if (password) {
@@ -355,7 +357,7 @@
 
               password_loading.value = true
               instance
-                .put('/api/emya/resetPassword', {
+                .put('/api/user/passwordReset', {
                   json: {
                     password,
                   },
@@ -642,8 +644,8 @@
       instance
         .post('/api/watch/slot')
         .then(async (res) => {
-          let { watch_slot_remaining } = await res.json()
-          data.value.watch_slot_remaining = watch_slot_remaining
+          let { slot_remaining } = await res.json()
+          data.value.slot_remaining = slot_remaining
           nMessage().success(`兑换成功`)
         })
         .finally(() => {
