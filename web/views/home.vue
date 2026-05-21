@@ -94,13 +94,13 @@
                   安全期间 均为临时密码
                 </n-tooltip>
                 <template v-if="data.must_otp">
-                  <n-button quaternary size="small" type="info" @click="emyaGetLoginPassword" :loading="emya_login_password_loading"> 点击获取 </n-button>
+                  <n-button quaternary size="small" type="info" @click="passwordTemporaryGet" :loading="password_get_loading"> 点击获取 </n-button>
                 </template>
                 <template v-else>
-                  <n-popconfirm negative-text="不要" positive-text="要" @positiveClick="emyaResetPassword()">
+                  <n-popconfirm negative-text="不要" positive-text="要" @positiveClick="passwordReset()">
                     <template #trigger>
-                      <template v-if="data.emya_password">
-                        {{ is_show ? data.emya_password : '***' }}
+                      <template v-if="data.password">
+                        {{ is_show ? data.password : '***' }}
                       </template>
                       <template v-else>点击设置密码</template>
                     </template>
@@ -305,9 +305,9 @@
       nMessage().success('复制成功')
     }
 
-  const emya_login_password_loading = ref(false),
-    emyaGetLoginPassword = () => {
-      emya_login_password_loading.value = true
+  const password_get_loading = ref(false),
+    passwordTemporaryGet = () => {
+      password_get_loading.value = true
       instance
         .get('/api/user/passwordTemporary')
         .then(async (res) => {
@@ -327,10 +327,10 @@
           }
         })
         .finally(() => {
-          emya_login_password_loading.value = false
+          password_get_loading.value = false
         })
     },
-    emyaResetPassword = () => {
+    passwordReset = () => {
       let new_password = ref(Math.random().toFixed(6).slice(-6)),
         password_loading = ref(false)
       let model = nModel().create({
@@ -364,7 +364,7 @@
                 })
                 .then(() => {
                   nMessage().success(`新的固定登录密码为 ${password}`)
-                  data.value.emya_password = password
+                  data.value.password = password
                   copy(password)
                   model.destroy()
                 })
