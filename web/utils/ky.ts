@@ -32,7 +32,7 @@ const instance = ky.create({
             break
           case 422:
             let response_422 = (await response.json()) as any
-            nMessage().warning(response_422.error || response_422.message)
+            nMessage().warning(response_422.message)
             break
           case 500:
             nMessage().error('系统错误 请稍后再试')
