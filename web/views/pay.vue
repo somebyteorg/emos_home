@@ -84,7 +84,7 @@
           data.value.pay_status = 'success'
           if (return_url) {
             let row = await res.json()
-            to_url.value = `${return_url}?no=${no}&param=${row.param}`
+            to_url.value = `${return_url}${return_url.includes('?') ? '&' : '?'}no=${no}&param=${row.param}`
             setTimeout(() => {
               window.location.href = to_url.value
             }, 1000)
