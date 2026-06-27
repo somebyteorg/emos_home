@@ -11,13 +11,8 @@
         transform: IsAprilFoolsDay ? 'scaleX(-1)' : 'none',
       }"
     >
-      <span class="inline-block px-3 py-1 rounded-full text-sm mb-4">
-        欢迎来到 基于
-        <n-button text tag="a" href="https://github.com/emosp/emya" target="_blank" type="primary">emya</n-button>
-        的
-        <n-button text tag="a" href="http://github.com/emosp/home" target="_blank">emos</n-button>
-      </span>
-      <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-4">
+      <span class="inline-block px-3 py-1 rounded-full text-sm"> 携手共建的公益服 </span>
+      <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 title">
         emos
         <span>
           <template v-for="index in waiting_number">~</template>
@@ -27,7 +22,7 @@
         quaternary
         round
         size="large"
-        style="border: 1px solid rgba(255, 255, 255, 0.4)"
+        class="action"
         @click="
           () => {
             storeSign.is_sign
@@ -91,4 +86,15 @@
 
   const domain = window.location.host
 </script>
-<style scoped lang="stylus"></style>
+<style scoped lang="stylus">
+  .title
+    font-size: clamp(44px, 8vw, 88px)
+    font-weight: 800
+    line-height: 0.95
+  .action
+    border: 1px solid rgba(255, 255, 255, 0.72)
+    background: rgba(255, 255, 255, 0.5)
+    color: rgba(22, 67, 68, 0.95)
+    box-shadow: 0 18px 40px rgba(63, 124, 122, 0.14)
+    backdrop-filter: blur(16px)
+</style>
