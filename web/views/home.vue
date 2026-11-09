@@ -81,6 +81,10 @@
                 <p class="font-mono">音乐服地址:</p>
                 <code @click="copyEmyaUrl(data.server_music)">{{ data.server_music }}</code>
               </div>
+              <div class="flex" v-show="is_show && data.server_abs">
+                <p class="font-mono">听书服地址:</p>
+                <code @click="copyEmyaUrl(data.server_abs)">{{ data.server_abs }}</code>
+              </div>
               <p v-show="is_show">
                 端口:
                 <code>443</code>
